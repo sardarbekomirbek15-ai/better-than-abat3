@@ -6,11 +6,53 @@
     <title>Казино Абата</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&family=Russo+One&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0f172a; 
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 100%);
+            color: white;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        .title-font { font-family: 'Russo One', sans-serif; }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+
+        .game-card {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .game-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .game-card:active { transform: translateY(0) scale(0.98); }
+
+        .poke-card {
+            background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #b45309 100%);
+            border: 4px solid #fef08a;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.7), inset 0 0 15px rgba(255,255,255,0.6);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .poke-card:hover {
+            transform: scale(1.03) translateY(-3px);
+            box-shadow: 0 15px 30px rgba(245,158,11,0.5);
+        }
+        .poke-card-inner {
+            background: #1e1b4b;
+            border-radius: 10px;
+            padding: 8px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .poke-card-locked {
+            filter: grayscale(100%) opacity(40%);
+            background: #334155 !important;
+            border-color: #64748b !important;
+        }
+    </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
-
-    <canvas id="fxCanvas"></canvas>
 
     <div id="loadingOverlay" class="fixed inset-0 z-[999] flex flex-col items-center justify-center bg-black/80 transition-opacity duration-500">
         <div class="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -36,9 +78,9 @@
             <div class="game-card bg-gradient-to-r from-pink-600 via-rose-600 to-purple-700 p-6 rounded-2xl cursor-pointer border-2 border-pink-400/80 shadow-lg" onclick="switchView('viewGacha')">
                 <div class="flex justify-between items-center mb-1">
                     <h3 class="title-font text-2xl text-white">🎰 ДЖЕКПОТ ВАЙФУ</h3>
-                    <span class="bg-yellow-400 text-black font-black text-[10px] px-2 py-0.5 rounded-full uppercase">1 $</span>
+                    <span class="bg-yellow-400 text-black font-black text-[10px] px-2 py-0.5 rounded-full uppercase">100 $</span>
                 </div>
-                <p class="text-xs text-pink-100">Выбивай редких аниме персонажей!</p>
+                <p class="text-xs text-pink-100">Выбивай редких аниме тяночек в виде Покемон-карт!</p>
             </div>
 
             <div class="game-card bg-gradient-to-r from-amber-600 to-yellow-700 p-4 rounded-2xl cursor-pointer border border-yellow-400/50 shadow-md flex justify-between items-center" onclick="switchView('viewCollection')">
@@ -46,31 +88,119 @@
                     <span class="text-3xl">🎴</span>
                     <div>
                         <h4 class="title-font text-lg text-white">МОЯ КОЛЛЕКЦИЯ</h4>
-                        <p class="text-[11px] text-yellow-200">Просмотр выбитых карт</p>
+                        <p class="text-[11px] text-yellow-200">Просмотр всех выбитых карт</p>
                     </div>
                 </div>
-                <span id="collectionCounter" class="font-mono bg-black/40 px-3 py-1 rounded-lg text-yellow-300 font-bold text-sm border border-yellow-500/30">0/20</span>
+                <span id="collectionCounter" class="font-mono bg-black/40 px-3 py-1 rounded-lg text-yellow-300 font-bold text-sm border border-yellow-500/30">0/4</span>
             </div>
         </div>
 
         <div id="viewGacha" class="hidden w-full flex flex-col items-center pb-20">
-            <h2 class="title-font text-3xl mb-1 mt-2 text-pink-400 text-center">ДЖЕКПОТ ВАЙФУ</h2>
-            <p class="text-xs text-gray-400 text-center mb-6">Испытай удачу!</p>
+            <h2 class="title-font text-3xl mb-1 mt-2 text-pink-400 text-center filter drop-shadow">ДЖЕКПОТ ВАЙФУ</h2>
+            <p class="text-xs text-gray-400 text-center mb-6">Испытай удачу и выбей уникальные карточки!</p>
 
-            <button onclick="spinGacha()" class="w-full max-w-xs bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-xl py-4 rounded-xl shadow-lg border-2 border-pink-300">
-                КРУТИТЬ (100 $)
-            </button>
+            <div class="w-full bg-slate-900 p-6 rounded-2xl border-2 border-pink-500/50 shadow-2xl flex flex-col items-center">
+                <p class="text-xs text-gray-400 mb-4 font-mono">Стоимость 1 крутки: <span class="text-yellow-400 font-bold">100 $</span></p>
+                <button onclick="spinGacha()" class="w-full bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-400 text-white font-black text-xl py-4 rounded-xl shadow-lg border-2 border-pink-300 transition active:scale-95 uppercase">Крутить за 100 $</button>
+            </div>
         </div>
 
         <div id="viewCollection" class="hidden w-full flex flex-col items-center pb-20">
             <h2 class="title-font text-3xl mb-1 mt-2 text-yellow-400 text-center">ПОКЕМОН-КАРТЫ</h2>
-            <p class="text-xs text-gray-400 text-center mb-6">Собрано: <span id="collectionSubCounter" class="text-yellow-400 font-bold">0 / 20</span></p>
+            <p class="text-xs text-gray-400 text-center mb-6">Собрано: <span id="collectionSubCounter" class="text-yellow-400 font-bold">0 / 4</span></p>
 
             <div id="collectionGrid" class="grid grid-cols-2 gap-4 w-full"></div>
         </div>
 
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        var BALANCE = 500;
+        var INVENTORY = [];
+
+        var WAIFUS = [
+            { id: 'w1', name: 'Мейшо Дото', title: 'Девочка-лошадка', hp: '180', rarity: '★ SR', image: 'https://cdn.donmai.us/original/79/a8/79a8949b54afd26d495e1186697dd42a.png' },
+            { id: 'w2', name: 'Марин Китагава', title: 'Эта фарфоровая кукла', hp: '220', rarity: '★★ SSR', image: 'https://img10.joyreactor.cc/pics/post/Anime-%D1%84%D1%8D%D0%BD%D0%B4%D0%BE%D0%BC%D1%8B-Sono-Bisque-Doll-wa-Koi-wo-Suru-7854927.jpeg' },
+            { id: 'w3', name: 'Макима', title: 'Охотница на демонов', hp: '300', rarity: '★★★ UR', image: 'https://image.jannyai.com/bot-avatars/kxzFVkWZclGRu0rI-P4zg.webp' },
+            { id: 'w4', name: 'Йоруичи Шихоуи', title: 'Богиня Скорости', hp: '280', rarity: '★★★ UR', image: 'https://i.pinimg.com/originals/2f/84/f9/2f84f9e5dca1b971cb9e00e03039e9ee.jpg' }
+        ];
+
+        function switchView(viewId) {
+            var views = ['viewMenu', 'viewGacha', 'viewCollection'];
+            views.forEach(function(v) {
+                var el = document.getElementById(v);
+                if (el) el.classList.add('hidden');
+            });
+
+            var target = document.getElementById(viewId);
+            if (target) target.classList.remove('hidden');
+
+            var btnBack = document.getElementById('btnBack');
+            if (btnBack) {
+                if (viewId === 'viewMenu') btnBack.classList.add('hidden');
+                else btnBack.classList.remove('hidden');
+            }
+        }
+
+        function updateUI() {
+            var balEl = document.getElementById('globalBalance');
+            if (balEl) balEl.innerText = BALANCE.toLocaleString() + ' $';
+
+            var counter = document.getElementById('collectionCounter');
+            var subCounter = document.getElementById('collectionSubCounter');
+            if (counter) counter.innerText = INVENTORY.length + '/' + WAIFUS.length;
+            if (subCounter) subCounter.innerText = INVENTORY.length + ' / ' + WAIFUS.length;
+
+            renderCollection();
+        }
+
+        function renderCollection() {
+            var grid = document.getElementById('collectionGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            WAIFUS.forEach(function(w) {
+                var isUnlocked = INVENTORY.indexOf(w.id) !== -1;
+                var card = document.createElement('div');
+                card.className = 'poke-card ' + (isUnlocked ? '' : 'poke-card-locked');
+                card.innerHTML = 
+                    '<div class="poke-card-inner">' +
+                        '<div class="flex justify-between items-center text-[10px] font-bold text-yellow-300 mb-1">' +
+                            '<span>' + w.rarity + '</span>' +
+                            '<span>HP ' + w.hp + '</span>' +
+                        '</div>' +
+                        '<div class="w-full h-32 bg-black/40 rounded-lg overflow-hidden mb-2 flex items-center justify-center">' +
+                            (isUnlocked ? '<img src="' + w.image + '" class="w-full h-full object-cover">' : '<span class="text-3xl opacity-30">❓</span>') +
+                        '</div>' +
+                        '<div class="text-center font-bold text-xs text-white truncate">' + (isUnlocked ? w.name : '???') + '</div>' +
+                        '<div class="text-center text-[10px] text-gray-400 truncate">' + (isUnlocked ? w.title : 'Заблокировано') + '</div>' +
+                    '</div>';
+                grid.appendChild(card);
+            });
+        }
+
+        function spinGacha() {
+            if (BALANCE < 100) {
+                alert('Недостаточно денег!');
+                return;
+            }
+            BALANCE -= 100;
+
+            var randomWaifu = WAIFUS[Math.floor(Math.random() * WAIFUS.length)];
+            if (INVENTORY.indexOf(randomWaifu.id) === -1) {
+                INVENTORY.push(randomWaifu.id);
+                alert('ПОЗДРАВЛЯЕМ! Вы выбили карточку: ' + randomWaifu.name + '!');
+            } else {
+                alert('Выпал дубликат: ' + randomWaifu.name);
+            }
+            updateUI();
+        }
+
+        window.onload = function() {
+            var loader = document.getElementById('loadingOverlay');
+            if (loader) loader.style.display = 'none';
+            updateUI();
+        };
+    </script>
 </body>
 </html>
