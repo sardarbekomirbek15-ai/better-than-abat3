@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Казино Абата</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&family=Russo+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col items-center">
+
+    <canvas id="fxCanvas"></canvas>
+
+    <div id="loadingOverlay" class="fixed inset-0 z-[999] flex flex-col items-center justify-center bg-black/80 transition-opacity duration-500">
+        <div class="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-yellow-400 font-bold tracking-widest uppercase text-sm">Загрузка игры...</p>
+    </div>
+
+    <div class="w-full bg-black/80 backdrop-blur-md p-4 sticky top-0 z-50 flex justify-between items-center border-b border-gray-700 shadow-xl">
+        <button id="btnBack" onclick="switchView('viewMenu')" class="hidden text-gray-400 font-bold hover:text-white transition flex items-center gap-1">
+            ‹ Лобби
+        </button>
+        <div id="topTitle" class="title-font text-xl text-yellow-400 mx-auto filter drop-shadow-md">КАЗИНО АБАТА</div>
+        <div class="flex items-center gap-2 bg-slate-900 px-3 py-1 rounded-lg border border-slate-700">
+            <span class="text-xs text-gray-400 uppercase hidden sm:inline">Баланс:</span>
+            <span id="globalBalance" class="font-mono text-green-400 font-bold text-lg">500 $</span>
+        </div>
+    </div>
+
+    <div id="mainContainer" class="flex-1 w-full max-w-md p-4 flex flex-col items-center relative">
+
+        <div id="viewMenu" class="w-full flex flex-col gap-4 pb-10">
+            <h2 class="title-font text-3xl text-center mb-2 mt-2 filter drop-shadow-md text-white">ВЫБЕРИ ИГРУ</h2>
+
+            <div class="game-card bg-gradient-to-r from-pink-600 via-rose-600 to-purple-700 p-6 rounded-2xl cursor-pointer border-2 border-pink-400/80 shadow-lg" onclick="switchView('viewGacha')">
+                <div class="flex justify-between items-center mb-1">
+                    <h3 class="title-font text-2xl text-white">🎰 ДЖЕКПОТ ВАЙФУ</h3>
+                    <span class="bg-yellow-400 text-black font-black text-[10px] px-2 py-0.5 rounded-full uppercase">1 $</span>
+                </div>
+                <p class="text-xs text-pink-100">Выбивай редких аниме персонажей!</p>
+            </div>
+
+            <div class="game-card bg-gradient-to-r from-amber-600 to-yellow-700 p-4 rounded-2xl cursor-pointer border border-yellow-400/50 shadow-md flex justify-between items-center" onclick="switchView('viewCollection')">
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl">🎴</span>
+                    <div>
+                        <h4 class="title-font text-lg text-white">МОЯ КОЛЛЕКЦИЯ</h4>
+                        <p class="text-[11px] text-yellow-200">Просмотр выбитых карт</p>
+                    </div>
+                </div>
+                <span id="collectionCounter" class="font-mono bg-black/40 px-3 py-1 rounded-lg text-yellow-300 font-bold text-sm border border-yellow-500/30">0/20</span>
+            </div>
+        </div>
+
+        <div id="viewGacha" class="hidden w-full flex flex-col items-center pb-20">
+            <h2 class="title-font text-3xl mb-1 mt-2 text-pink-400 text-center">ДЖЕКПОТ ВАЙФУ</h2>
+            <p class="text-xs text-gray-400 text-center mb-6">Испытай удачу!</p>
+
+            <button onclick="spinGacha()" class="w-full max-w-xs bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-xl py-4 rounded-xl shadow-lg border-2 border-pink-300">
+                КРУТИТЬ (100 $)
+            </button>
+        </div>
+
+        <div id="viewCollection" class="hidden w-full flex flex-col items-center pb-20">
+            <h2 class="title-font text-3xl mb-1 mt-2 text-yellow-400 text-center">ПОКЕМОН-КАРТЫ</h2>
+            <p class="text-xs text-gray-400 text-center mb-6">Собрано: <span id="collectionSubCounter" class="text-yellow-400 font-bold">0 / 20</span></p>
+
+            <div id="collectionGrid" class="grid grid-cols-2 gap-4 w-full"></div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
